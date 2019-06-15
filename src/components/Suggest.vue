@@ -1,0 +1,112 @@
+<template>
+  <div class="Suggest">
+    <div class="Suggest_input">
+      <input v-model="keyword" type="text" class="Input" />
+    </div>
+    <div class="Suggest_list">
+      <!-- eslint-disable-next-line -->
+      <div v-for="item in items" class="Suggest_listItem" @click="selectItem(item)">{{ item.name }}</div>
+    </div>
+  </div>
+</template>
+
+<script>
+import debounce from 'lodash/debounce'
+
+export default {
+  name: 'Suggest',
+  props: {
+    /**
+     * itemsは以下の形式になっている必要がある
+     * [
+     *  {
+     *    name: '候補に表示される文字列',
+     *    data: {
+     *        ~
+     *    }
+     *  }
+     * ]
+     *
+     * dataキーは候補が選択された際に親に渡すデータ
+     */
+    items: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  data() {
+    return {
+      keyword: '',
+    }
+  },
+  watch: {
+    keyword() {
+      this.debouncedEmitChangeKeyword()
+    },
+  },
+  created() {
+    // 連続で文字入力された際に大量にAPIが発行されると負荷が大きいので、少しだけ間引く
+    // https://jp.vuejs.org/v2/guide/computed.html#%E3%82%A6%E3%82%A9%E3%83%83%E3%83%81%E3%83%A3
+    this.debouncedEmitChangeKeyword = debounce(this.emitChangeKeyword, 200)
+  },
+  methods: {
+    selectItem(item) {
+      this.$emit('selectItem', item.data)
+    },
+    emitChangeKeyword() {
+      this.$emit('changeKeyword', this.keyword)
+    },
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+$listItemHeight: 40px;
+$maxListItemNum: 5;
+
+.Suggest {
+  position: relative;
+}
+.Suggest_input {
+}
+.Suggest_list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+
+  max-height: $listItemHeight * $maxListItemNum;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  box-shadow: rgba(0, 0, 0, 0.15) 0 5px 5px;
+}
+.Suggest_listItem {
+  font-size: 16px;
+  line-height: $listItemHeight;
+  padding: 0 10px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ecf0f1;
+  }
+}
+
+input.Input {
+  font-size: 16px;
+
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #bdc3c7;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: 2px solid rgba(#3498db, 0.5);
+  }
+}
+</style>
