@@ -19,8 +19,9 @@ server.get('/', (req, res) => {
 })
 
 server.get('/api/item/list', async (req, res) => {
-  const { keyword } = req.query
-  const result = items.filter(item => item.item_name.includes(keyword))
+  const { keyword, count } = req.query
+  const all = items.filter(item => item.item_name.includes(keyword))
+  const result = all.slice(0, count)
 
   await sleep(1000)
 

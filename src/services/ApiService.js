@@ -17,7 +17,10 @@ class ApiService {
 
   async fetchSuggestions(keyword) {
     const { data: items } = await this.client.get('item/list', {
-      params: { keyword },
+      params: {
+        keyword,
+        count: 5,
+      },
     })
 
     return items
