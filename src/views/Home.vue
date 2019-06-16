@@ -2,6 +2,7 @@
   <div class="Home">
     <Suggest
       :items="suggest.items"
+      :is-loading="suggest.isLoading"
       @changeKeyword="fetchSuggestion"
       @selectItem="moveToItemDetailPage"
     />
@@ -23,6 +24,7 @@ export default {
       suggest: {
         currentSearchKeyword: null,
         items: [],
+        isLoading: false,
       },
     }
   },
@@ -34,7 +36,9 @@ export default {
       }
 
       this.suggest.currentSearchKeyword = keyword
+      this.suggest.isLoading = true
       const items = await apiService.fetchSuggestions(keyword)
+      this.suggest.isLoading = false
 
       // 通信結果が帰ってくる前に検索キーワードが変更さた時対策
       // TODO: この処理はどちらかというとSuggestコンポーネントが持つべき処理な気がする
